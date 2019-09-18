@@ -1,0 +1,22 @@
+{
+  "name": "incoming-webhook",
+  "version": "1.0.0",
+  "description": "Slack bot application.",
+  "engines": {
+    "node": "12.x"
+  },
+  "devDependencies": {
+    "puppeteer": "^2.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "t-yasukawa",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.19.1",
+    "chrome-aws-lambda": "^2.0.0",
+    "puppeteer-core": "^2.0.0",
+    "serverless": "^1.60.5"
+  }
+}

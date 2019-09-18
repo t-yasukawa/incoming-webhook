@@ -1,0 +1,10 @@
+sendTrainDelayToSlack:
+  handler: src/models/lambda/trainDelay.sendToSlack
+  events:
+    - schedule: 
+      rate: cron(15 9,22,23 ? * MON-FRI *)  ## 7:15,8:15,18:15 月~金 
+  layers:
+      - {Ref: ChromeLambdaLayer}
+  environment:
+    TRAIN_DELAY_JSON_URL: 'https://tetsudo.rti-giken.jp/free/delay.json'
+    SLACK_WEBHOOK_URL: 'https://hooks.slack.com/services/*************************'
