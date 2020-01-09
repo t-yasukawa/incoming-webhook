@@ -50,7 +50,7 @@ module.exports.sendToSlack = async () => {
         console.log('遅延情報はありませんでした。')
         return;
     }
-    console.log(notifyDelays)
+    console.log('遅延情報が見つかりました。' + notifyDelays)
 
     // 遅延内容を取得
     const messages = await getDelayMessage(notifyDelays)
