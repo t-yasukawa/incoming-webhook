@@ -70,6 +70,12 @@ async function getNotifyDelays() {
     try {
         // 運行遅延情報を取得
         const res = await axios.get(delay_url)
+        // res = [{
+        //     "name":"東北本線",
+        //     "company":"JR東日本",
+        //     "lastupdate_gmt":1578638905,
+        //     "source":"鉄道com RSS"
+        // }]
 
         // 通知する路線のみ抽出
         res.data.forEach(delayItem => {
@@ -89,7 +95,7 @@ async function getNotifyDelays() {
 /**
  * 遅延メッセージを取得
  * 
- * @param {*} delays 
+ * @param {Array} delays 
  */
 async function getDelayMessage(delays) {
     const messages = [];
@@ -124,8 +130,8 @@ async function getDelayMessage(delays) {
 /**
  * JR東日本（東北エリア）の遅延内容をスクレイピング
  * 
- * @param {*} page Page
- * @param {*} target 路線名
+ * @param {Page} page Page
+ * @param {string} target 路線名
  */
 async function selectorForJrEast(page, target) {
     const selector = '#wrapper > div.main_con02 > div.table_access > table > tbody > tr'
@@ -149,7 +155,7 @@ async function selectorForJrEast(page, target) {
 /**
  * 仙台市地下鉄（南北・東西）の遅延内容をスクレイピング
  * 
- * @param {*} page Page
+ * @param {Page} page Page
  */
 async function selectorForSendaiSubway(page) {
     const selector = '#unkou_detail'
@@ -171,8 +177,8 @@ async function selectorForSendaiSubway(page) {
 /**
  * textContent取得
  * 
- * @param {*} elementHandle 
- * @param {*} target 
+ * @param {ElementHandle} elementHandle 
+ * @param {string} target 
  */
 async function getTextContext(elementHandle, target) {
     const tag = await elementHandle.$(target)
@@ -184,7 +190,7 @@ async function getTextContext(elementHandle, target) {
 /**
  * Slackへ送信
  * 
- * @param {*} message 
+ * @param {string} message 
  */
 async function postSlack(message) {
     const slack_url = process.env['SLACK_WEBHOOK_URL']
