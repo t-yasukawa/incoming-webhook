@@ -2,7 +2,7 @@ sendTrainDelayToSlack:
   handler: src/models/lambda/trainDelay.sendToSlack
   events:
     - schedule: 
-      rate: cron(15 9,22,23 ? * MON-FRI *)  ## 7:15,8:15,18:15 月~金 
+      rate: cron(0,20,40 9,22,23 ? * MON-FRI *)  ## 7:00,7:20,7:40,8:00,8:20,8:40,18:00,18:20,18:40 月~金 
   layers:
       - {Ref: ChromeLambdaLayer}
   environment:

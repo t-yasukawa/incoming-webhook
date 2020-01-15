@@ -48,12 +48,16 @@ module.exports.sendToSlack = async () => {
     const notifyDelays = await getNotifyDelays()
     if (notifyDelays.length == 0) {
         console.log('遅延情報はありませんでした。')
-        return;
+        return
     }
-    console.log('遅延情報が見つかりました。' + notifyDelays)
+    console.log('遅延情報が見つかりました。', notifyDelays.map((delay) => delay.name))
 
     // 遅延内容を取得
     const messages = await getDelayMessage(notifyDelays)
+    if (messages.length == 0) {
+        console.warn('鉄道遅延APIに遅延情報がありましたが、Webサイトから遅延情報を取得できませんでした。')
+        return
+    }
     console.log(messages.join('\n'))
 
     // Sclackに送信
@@ -113,6 +117,9 @@ async function getDelayMessage(delays) {
             // websiteから遅延情報をスクレイピング
             await page.goto(i.website)
             const detail = await i.selector(page)
+            if (detail == "") {
+                continue
+            }
             const message = `*・${i.company} \<${i.name}\>* (<${i.website}|jump>)\n ${detail}\n`
             messages.push(message)
         }
@@ -146,7 +153,7 @@ async function selectorForJrEast(page, target) {
         }
     } catch (error) {
         console.error(error)
-        return `:warning: ノードの取得に失敗しました。DOMが変更されている可能性があります。\n  \`${selector}\` `
+        return ""
     }
 
     return messages.join('\n')
@@ -159,16 +166,13 @@ async function selectorForJrEast(page, target) {
  */
 async function selectorForSendaiSubway(page) {
     const selector = '#unkou_detail'
-
+    let text = ""
     try {
         const item = await page.$(selector)
-        const text = await getTextContext(item)
-        if (text == null) {
-            return `:warning: ノードの取得に失敗しました。DOMが変更されている可能性があります。\n  \`${selector}'\` `
-        }
+        text = await getTextContext(item)
     } catch (error) {
         console.error(error)
-        return `:warning: ノードの取得に失敗しました。DOMが変更されている可能性があります。\n  \`${selector}'\` `
+        return ""
     }
 
     return text
@@ -182,6 +186,9 @@ async function selectorForSendaiSubway(page) {
  */
 async function getTextContext(elementHandle, target) {
     const tag = await elementHandle.$(target)
+    if (tag == null) {
+        throw new Error('指定したDOMが見つかりませんでした。' + target)
+    }
     const prop = await tag.getProperty('textContent')
     const text = await prop.jsonValue()
     return text
