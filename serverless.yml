@@ -19,6 +19,7 @@ package:
 
 functions:
   - ${file(./functions/trainDelay.yml)}
+  - ${file(./functions/rainfall.yml)}
 
 layers:
   chrome:

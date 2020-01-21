@@ -1,0 +1,14 @@
+sendRainfallToSlack:
+  handler: src/models/lambda/rainfall.sendToSlack
+  events:
+    - schedule: 
+      ## 18:00 月~金 
+      rate: cron(0 9 ? * MON-FRI *)
+  environment:
+    YOLP_APP_ID: '*******************************'
+    YOLP_WEATHER_URL: 'https://map.yahooapis.jp/weather/V1/place'
+    YOLP_MAP_URL: 'https://map.yahooapis.jp/map/V1/static'
+    TARGET_LAT: '38.260743'
+    TARGET_LON: '140.882183'
+    TARGET_PLACE: '仙台駅周辺'
+    SLACK_WEBHOOK_URL: 'https://hooks.slack.com/services/*************'
