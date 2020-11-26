@@ -141,13 +141,13 @@ async function getDelayMessage(delays) {
  * @param {string} target 路線名
  */
 async function selectorForJrEast(page, target) {
-    const selector = '#wrapper > div.main_con02 > div.table_access > table > tbody > tr'
+    const selector = '#contents > section.container.bgGray.pt80 > section > section.pb80.sp_pb50 > div > table > tbody > tr'
     const messages = []
     try {
         for (const item of await page.$$(selector)) {
-            const lineName = await getTextContext(item, '.line_name')
+            const lineName = await getTextContext(item, 'th.ta-l > div > p.rosen > span.name')
             if (lineName == target) {
-                const message = await getTextContext(item, '.status_text')
+                const message = await getTextContext(item, 'td > a > p.mt10.sp_mt5.sp_mr25')
                 messages.push(message)
             }
         }
