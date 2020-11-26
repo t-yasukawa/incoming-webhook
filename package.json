@@ -15,8 +15,13 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.19.1",
-    "serverless": "^1.60.5",
     "chrome-aws-lambda": "2.0.0",
-    "puppeteer-core": "2.0.0"
+    "gif-encoder": "^0.7.2",
+    "gifencoder": "^2.0.1",
+    "moment": "^2.24.0",
+    "omggif": "^1.0.10",
+    "png-js": "^1.0.0",
+    "puppeteer-core": "2.0.0",
+    "serverless": "^1.60.5"
   }
 }

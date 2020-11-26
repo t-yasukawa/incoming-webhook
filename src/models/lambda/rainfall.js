@@ -1,32 +1,40 @@
 'use strict'
 
 const axios = require("axios")
+const fs = require('fs')
+const PNG = require('png-js');
+const omggif = require('omggif')
+const moment = require('moment')
 
+// YOLP
+const url = process.env['YOLP_MAP_URL']
 const appId = process.env['YOLP_APP_ID']
 const lat = process.env['TARGET_LAT']
 const lon = process.env['TARGET_LON']
+const intervalMin = process.env['INTERVAL_MIN']
+const frameCount = process.env['FRAME_COUNT']
 
 module.exports.sendToSlack = async () => {
 
     // 降雨情報取得
-    let weathers = await getWeathers()
-    weathers = weathers.filter(w => w.Rainfall > 0)
-    if (weathers.length == 0) {
-        console.log('降雨情報はありませんでした。')
-        return
-    }
+    // let weathers = await getWeathers()
+    // weathers = weathers.filter(w => w.Rainfall > 0)
+    // if (weathers.length == 0) {
+    //     console.log('降雨情報はありませんでした。')
+    //     return
+    // }
 
     console.log('降雨情報がありました。')
-    console.log(weathers)
-    // let weathers = [
-    //     { Type: 'observation', Date: '202001161240', Rainfall: 10.21 },
-    //     { Type: 'forecast', Date: '202001161250', Rainfall: 7.89 },
-    //     { Type: 'forecast', Date: '202001161300', Rainfall: 5.66 },
-    //     { Type: 'forecast', Date: '202001161310', Rainfall: 1.20 },
-    //     { Type: 'forecast', Date: '202001161320', Rainfall: 1.20 },
-    //     { Type: 'forecast', Date: '202001161330', Rainfall: 0 },
-    //     { Type: 'forecast', Date: '202001161340', Rainfall: 0 }
-    // ]
+    // console.log(weathers)
+    let weathers = [
+        { Type: 'observation', Date: '202001161240', Rainfall: 10.21 },
+        { Type: 'forecast', Date: '202001161250', Rainfall: 7.89 },
+        { Type: 'forecast', Date: '202001161300', Rainfall: 5.66 },
+        { Type: 'forecast', Date: '202001161310', Rainfall: 1.20 },
+        { Type: 'forecast', Date: '202001161320', Rainfall: 1.20 },
+        { Type: 'forecast', Date: '202001161330', Rainfall: 0 },
+        { Type: 'forecast', Date: '202001161340', Rainfall: 0 }
+    ]
 
     // メッセージ
     const weather = weathers[0]
@@ -87,6 +95,46 @@ function getRainMessage(rainfall) {
     return message
 }
 
+async function downloadRainfall(date) {
+    const fileName = `/tmp/rainfall.png`
+    const params = {
+        'appid': appId,
+        'lat': lat,
+        'lon': lon,
+        'z': 9,
+        'width': 600,
+        'height': 600,
+        'overlay': `type:rainfall|datelabel:off|date:${date}`
+    }
+
+    const res = await axios.get(url, {'params': params, 'responseType': 'arraybuffer'});
+    fs.writeFileSync(fileName, new Buffer.from(res.data), 'binary');
+
+    return fileName
+}
+
+function decode(png) {
+    return new Promise(r => {
+        png.decode(pixels => r(pixels)) 
+    });
+}
+
+async function generateGif() {
+    // record gif
+    let buf = new Buffer(600 * 600)
+    var gf = new omggif.GifWriter(buf, 2, 2, {loop: 1});
+
+    for(let i = 0; i < frameCount; i++) {
+        let date = moment().add(intervalMin * i, 'minutes').format('YYYYMMDDHHmm')
+        let fileName = await downloadRainfall(date)
+
+        const png = PNG.load(fileName);
+        await decode(png).then(pixels => {
+            gf.addFrame(0,0,600,600,pixels,{delay: 500, palette: pixels})
+        });
+    }
+}
+
 /**
  * Slackへ送信
  * 
@@ -95,21 +143,25 @@ function getRainMessage(rainfall) {
 async function postSlack(message) {
     const slackUrl = process.env['SLACK_WEBHOOK_URL']
     const place = process.env['TARGET_PLACE']
-    
-    const imageUrl = `${process.env['YOLP_MAP_URL']}?appid=${appId}&lat=${lat}&lon=${lon}&z=15&width=600&height=600&overlay=type:rainfall|datelabel:off`
 
-    const payload = {
-        'username': '降雨お知らせbot',
-        'icon_emoji': ':umbrella:',
-        'attachments': [
-            {
-                'color': '#0000dd',
-                'pretext': `<!channel> ${place}で${message}`,
-                'image_url': imageUrl
-            }
-        ]
-    }
+    // とりあえずgifを書き出す
+    const gifName = "/tmp/rainfall.gif"
+    fs.writeFileSync(gifName, generateGif())
+
+    return
+
+    // const payload = {
+    //     'username': '降雨お知らせbot',
+    //     'icon_emoji': ':umbrella:',
+    //     'attachments': [
+    //         {
+    //             'color': '#0000dd',
+    //             'pretext': `<!channel> ${place}で${message}`,
+    //             'image_url': imageUrl
+    //         }
+    //     ]
+    // }
     
-    const res = await axios.post(slackUrl, payload)
-    console.log(res)
+    // const res = await axios.post(slackUrl, payload)
+    // console.log(res)
 }

@@ -8,7 +8,9 @@ sendRainfallToSlack:
     YOLP_APP_ID: '*******************************'
     YOLP_WEATHER_URL: 'https://map.yahooapis.jp/weather/V1/place'
     YOLP_MAP_URL: 'https://map.yahooapis.jp/map/V1/static'
-    TARGET_LAT: '38.260743'
-    TARGET_LON: '140.882183'
+    TARGET_LAT: '43.06417'
+    TARGET_LON: '141.34694'
     TARGET_PLACE: '仙台駅周辺'
     SLACK_WEBHOOK_URL: 'https://hooks.slack.com/services/*************'
+    INTERVAL_MIN: '10'
+    FRAME_COUNT: 6
