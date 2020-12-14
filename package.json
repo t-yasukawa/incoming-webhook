@@ -15,8 +15,8 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.19.1",
-    "serverless": "^1.60.5",
-    "chrome-aws-lambda": "2.0.0",
-    "puppeteer-core": "2.0.0"
+    "chrome-aws-lambda": "^5.5.0",
+    "puppeteer-core": "2.0.0",
+    "serverless": "^2.15.0"
   }
 }
